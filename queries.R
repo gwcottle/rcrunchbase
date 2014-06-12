@@ -84,12 +84,22 @@ build_paths <- function(paths) {
   paste("v/2/", paths, sep="")
 }
 
-crunchbase_expand_section <- function() {
+crunchbase_expand_section <- function(node, relationship, ...) {
   # takes as input a parsed node detail response and a relationship name (eg current_team, web_presences, etc)
-  # and returns the entire (get_collections() if necessary) collection. start by 
-  # checking node$data$relationships$xxx$paging$total_items. if <=8, just return $items, else call 
-  # get_collection on node$data$relationships$xxx$paging$first_page_url  
-  # call parse_url(THAT^) and get $path element to pass out
+  # and returns the entire collection (all pages,if >1). 
+  
+  # the section we'll be working with
+  section <- node[[c("data","relationships",relationship)]]
+  
+  # if it's all here, don't need to do anything
+  if (section$paging$total_items <= 8) return(data.frame(section$items, page=1))
+  
+  # otherwise, get and flatten the necessary collection.
+  # the section paging has the entire url for the first page,
+  # we need to pass just the path part to get_collection
+  crunchbase_get_collection(path=str_extract(section$paging$first_page_url, "/v/2/.+$"),
+                            ...) %>%
+    crunchbase_flatten_collection()
 }
 
 crunchbase_onehop <- function() {
