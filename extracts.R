@@ -11,8 +11,8 @@ df_collapse <- function(df, column_names, col_sep, row_sep) {
 # a named vector of df_collapsed strings
 
 crunchbase_strip <- function(node) {
-  permalink <- paste(node$metadata$www_path_prefix, tolower(node$data$cb1_type), "/", node$data$permalink, sep="")
-  bio <- node$data$bio
+  permalink <- paste(node$metadata$www_path_prefix, tolower(node$data$type), "/", node$data$properties$permalink, sep="")
+  bio <- node$data$properties$bio
     if (is.null(bio)) bio <- ""
   
   # degree info
