@@ -44,5 +44,5 @@ crunchbase_strip <- function(node) {
 }
 
 crunchbase_strip_list <- function(nodes) {
-  lapply(nodes, crunchbase_strip) %>% do.call(rbind, .) %>% data.frame(stringAsFactors=FALSE)
+  lapply(nodes, crunchbase_strip) %>% do.call(rbind, .) %>% data.frame(stringsAsFactors=FALSE)
 }

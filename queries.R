@@ -105,6 +105,7 @@ no_exclude <- function(node) {
 # exclusion constructor function
 word_exclude <- function(section, pattern) {
   excluder <- function(node) {
+    if (class(try(node[[section]], silent=TRUE)) == "try-error") return(TRUE)
     is.null(node[[section]]) || !str_detect(node[[section]], ignore.case(pattern))
   }
   return(excluder)
