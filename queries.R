@@ -1,7 +1,7 @@
 require(stringr)
 require(magrittr)
 
-crunchbase_get_collection <- function(path, ..., page.limit=FALSE, delay=.3) {
+crunchbase_get_collection <- function(path, ..., page.limit=FALSE, delay=1) {
   # pull ALL items in a collection 
   # (easy if one page, need to access first page "paging" to get future pages otherwise)
   
@@ -46,18 +46,7 @@ crunchbase_flatten_collection <- function(collection) {
   do.call("rbind", alldf)
 }
 
-no_exclude <- function(node) {
-  FALSE
-}
-
-word_exclude <- function(section, pattern) {
-  excluder <- function(node) {
-    is.null(node[[section]]) || !str_detect(node[[section]], ignore.case(pattern))
-  }
-  return(excluder)
-}
-
-crunchbase_get_entities <- function(paths, ..., exclude=no_exclude, delay=.3) {
+crunchbase_get_entities <- function(paths, ..., exclude=no_exclude, delay=1) {
   # as input, a vector of paths
   # eg: c("person/some-name", "person/another-name", "person/somebody")
   # as output, a list of lists, each list is the output of crunchbase_GET(path)
@@ -68,14 +57,13 @@ crunchbase_get_entities <- function(paths, ..., exclude=no_exclude, delay=.3) {
   entities <- vector("list", length(fullpaths))
   for (i in 1:length(fullpaths)) {
     cat("Getting data for ", fullpaths[i], "\n")
-    
+    Sys.sleep(delay)
     temp <- crunchbase_GET(path=fullpaths[[i]], ...) %>% crunchbase_parse
     if (exclude(temp)) next
     
     cat("Adding ", fullpaths[i], "to list", "\n")
     entities[[i]] <- temp
-    names(entities)[i] <- fullpaths[i]
-    Sys.sleep(delay)
+    names(entities)[i] <- fullpaths[i]    
   }
   return(entities[sapply(entities, function(x) !is.null(x))])
 }
@@ -109,5 +97,18 @@ crunchbase_onehop <- function() {
   # company (or whatever)
 }
 
-# an example:
-exclude_noncal <- word_exclude(section=c("data", "bio"), pattern="berkeley")
+# exclusion examples:
+no_exclude <- function(node) {
+  FALSE
+}
+
+# exclusion constructor function
+word_exclude <- function(section, pattern) {
+  excluder <- function(node) {
+    is.null(node[[section]]) || !str_detect(node[[section]], ignore.case(pattern))
+  }
+  return(excluder)
+}
+
+
+exclude_noncal <- word_exclude(section=c("data", "properties", "bio"), pattern="berkeley")
