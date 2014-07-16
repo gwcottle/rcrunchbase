@@ -2,12 +2,12 @@ cb_query <- function(user_key = crunchbase_key(), ...) {
     list(user_key = user_key, ...)
 }
 
-crunchbase_GET <- function(endpoint, permalink=NULL, query=cb_query()) {
+crunchbase_GET <- function(endpoint, permalink=NULL, rels=NULL, query=cb_query()) {
     if (!require(httr)) {
         stop("the httr package is required, please install")
     }
     
-    if (endpoint %in% c("people", "organizations", "products")) {
+    if (!is.null(rels) || endpoint %in% c("people", "organizations", "products")) {
         if (!("page" %in% names(query)) || is.null(query$page)) {
             query$page <- 1
             warning(paste("collections queries require a page parameter, page has defaulted to ",
@@ -29,7 +29,7 @@ crunchbase_GET <- function(endpoint, permalink=NULL, query=cb_query()) {
     
     request <- list(scheme = "http",
                     hostname = "api.crunchbase.com",
-                    path = paste("v", "2", endpoint, permalink, sep="/"),
+                    path = paste("v", "2", endpoint, permalink, rels, sep="/"),
                     query = query)
     class(request) <- "url"                
     request <- gsub("%5F", "_", build_url(request))  
