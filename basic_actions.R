@@ -23,7 +23,7 @@ crunchbase_GET <- function(endpoint, permalink=NULL, rels=NULL, query=cb_query()
         }
     }
     
-    if (!(endpoint %in% c("people", "organizations", "products")) && is.null(permalink)) {
+    if (endpoint %in% c("person", "organization", "product", "funding-round", "fund-raise", "acquisition", "ipo") && is.null(permalink)) {
         stop("entity endpoints require a permalink")
     }
     
