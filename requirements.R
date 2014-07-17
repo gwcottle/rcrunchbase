@@ -1,0 +1,5 @@
+library(memoise)
+library(httr)
+library(magrittr)
+library(dplyr)
+library(stringr)
