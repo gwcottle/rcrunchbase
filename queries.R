@@ -4,6 +4,7 @@ crunchbase_get_collection <- function(path, page.limit=FALSE, delay=1.3, ...) {
     
     # get first page of results and check the paging data to see how many more (if any)
     pageOne <- crunchbase_GET(path, ...) %>% crunchbase_parse
+    if (is.null(pageOne)) stop(paste(paste(path, collapse="/"), "is not a valid collection", sep=" "), call.=FALSE)
     if (page.limit) {
         pages <- pmin(pageOne[[c("data","paging","number_of_pages")]], page.limit)
     } else {
@@ -54,19 +55,18 @@ crunchbase_get_entities <- function(paths, exclude=no_exclude, delay=1.3, ...) {
     
     entities <- vector("list", length(paths))
     for (i in 1:length(paths)) {
-        cat("Getting data for ", paths[i], "\n")
+        cat("Getting data for ", paths[[i]], "\n")
         Sys.sleep(delay)
-        temp <- crunchbase_GET(paths[i], ...) %>% crunchbase_parse
+        temp <- crunchbase_GET(paths[[i]], ...) %>% crunchbase_parse
         if (exclude(temp)) next
         
-        cat("Adding ", paths[i], "to list", "\n")
+        cat("Adding ", paths[[i]], "to list", "\n")
         entities[[i]] <- temp
-        names(entities)[i] <- paths[i]
     }
     return(entities[sapply(entities, function(x) !is.null(x))])
 }
 
-crunchbase_expand_section <- function(node, relationship, ...) {
+crunchbase_expand_section <- function(node, relationship, delay=1.3, ...) {
     # takes as input a parsed node detail response and a relationship name 
     # (eg current_team, web_presences, etc) and returns the entire collection 
     # (all pages,if >1). 
@@ -81,6 +81,7 @@ crunchbase_expand_section <- function(node, relationship, ...) {
     # the section paging has the entire url for the first page,
     # we need to pass just the path part to get_collection
     crunchbase_get_collection(path=str_match(section$paging$first_page_url, "/v/2/(.+$)")[,2],
+                              delay=delay,
                               ...) %>%
         crunchbase_flatten_collection()
 }
