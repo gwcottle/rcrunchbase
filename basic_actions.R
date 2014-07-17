@@ -1,62 +1,60 @@
-cb_query <- function(user_key = crunchbase_key(), ...) {
-    list(user_key = user_key, ...)
-}
-
-crunchbase_GET <- function(endpoint, permalink=NULL, rels=NULL, query=cb_query()) {
-    if (!require(httr)) {
-        stop("the httr package is required, please install")
-    }
-    
-    if (!is.null(rels) || endpoint %in% c("people", "organizations", "products")) {
-        if (!("page" %in% names(query)) || is.null(query$page)) {
-            query$page <- 1
-            warning(paste("collections queries require a page parameter, page has defaulted to ",
-                          query$page, sep=""),
-                    call. = FALSE)
-        }      
-        
-        if (!("order" %in% names(query)) || is.null(query$order)) {
-            query$order = crunchbase_order()
-            warning(paste("collections queries require an order parameter, order has defaulted to '",
-                          query$order, "'", sep=""),
-                    call. = FALSE)
-        }
-    }
-    
-    if (endpoint %in% c("person", "organization", "product", "funding-round", "fund-raise", "acquisition", "ipo") && is.null(permalink)) {
-        stop("entity endpoints require a permalink")
-    }
-    
-    request <- list(scheme = "http",
-                    hostname = "api.crunchbase.com",
-                    path = paste("v", "2", endpoint, permalink, rels, sep="/"),
-                    query = query)
-    class(request) <- "url"                
-    request <- gsub("%5F", "_", build_url(request))  
-    GET(request)
-}
+mGET <- memoise(httr::GET)
 
 crunchbase_order <- function(mod="created_at", type="asc") {
     paste(mod, type, sep=" ")
 }
 
+crunchbase_GET <- function(path, ...) {
+    
+    query <- list(...)
+    if (sum(names(query) == "") > 0) stop("all query parameters must be named")
+    
+    if (!("user_key" %in% names(query)) || is.null(query$user_key)) query$user_key <- crunchbase_key()
+    if (!("page" %in% names(query)) || is.null(query$page)) query$page <- 1    
+    if (!("order" %in% names(query)) || is.null(query$order)) query$order <- crunchbase_order()
+    
+    if (length(path) > 1) path <- paste(path, collapse="/")
+    
+    request <- list(scheme = "http",
+                    hostname = "api.crunchbase.com",
+                    path = paste("v", "2", path, sep="/"),
+                    query = query)
+    class(request) <- "url"                
+    request <- gsub("%5F", "_", build_url(request))
+    p <- mGET(request)
+    
+    if (crunchbase_GET_audit(p)) {
+        return(NULL)
+    } else {return(p)}
+}
+
+crunchbase_GET_audit <- function(p) {
+    if (p$status_code < 400) return(FALSE)    
+    warning("HTTP failure: ", p$status_code, "\n", p$headers$statusmessage, call. = FALSE)
+    return(TRUE)
+}
+
 crunchbase_check <- function(p) {
     if (is.null(p$data$error)) 
-        return(invisible())
+        return(FALSE)
     
     message <- p$data$error$message
     warning("HTTP failure: ", p$data$error$code, "\n", message, call. = FALSE)
+    return(TRUE)
 }
 
 crunchbase_parse <- function(req) {
-    if (!require(httr)) {
-        stop("the httr package is required, please install")
-    }    
+    if (is.null(req)) {
+        warning("No output to parse", call. = FALSE)
+        return(NULL)
+    }
     text <- content(req, as = "text")
-    if (identical(text, "")) 
-        stop("No output to parse", call. = FALSE)
+    if (identical(text, "")) {
+        warning("No output to parse", call. = FALSE)
+        return(NULL)
+    }
     p <- jsonlite::fromJSON(text, simplifyDataFrame = TRUE)
-    crunchbase_check(p)
+    if (crunchbase_check(p)) return(NULL)
     p
 }
 

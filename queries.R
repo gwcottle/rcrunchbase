@@ -1,12 +1,9 @@
-crunchbase_get_collection <- function(endpoint, permalink=NULL, rels=NULL, page.limit=FALSE, delay=1.3, page=1, order=crunchbase_order()) {
-    if (!require(magrittr)) {
-        stop("the magrittr package is required, please install")
-    }    
+crunchbase_get_collection <- function(path, page.limit=FALSE, delay=1.3, ...) {    
     # pull ALL items in a collection 
     # (easy if one page, need to access first page "paging" to get future pages otherwise)
     
     # get first page of results and check the paging data to see how many more (if any)
-    pageOne <- crunchbase_GET(endpoint, query=cb_query(page=page, order=order)) %>% crunchbase_parse
+    pageOne <- crunchbase_GET(path, ...) %>% crunchbase_parse
     if (page.limit) {
         pages <- pmin(pageOne[[c("data","paging","number_of_pages")]], page.limit)
     } else {
@@ -26,10 +23,7 @@ crunchbase_get_collection <- function(endpoint, permalink=NULL, rels=NULL, page.
     # eventually be made optional (verbose=FALSE)
     for (i in 2:pages) {
         cat("Getting page ", i," at ", format(Sys.time(), "%X"), "\n",sep="")
-        output[[i]] <- crunchbase_GET(endpoint, 
-                                      permalink, 
-                                      rels, 
-                                      query=cb_query(page=i, order=order)) %>%
+        output[[i]] <- crunchbase_GET(path, page=i, ...) %>%
             crunchbase_parse
         Sys.sleep(delay)
     }
@@ -51,43 +45,31 @@ crunchbase_flatten_collection <- function(collection) {
     do.call("rbind", alldf)
 }
 
-crunchbase_get_entities <- function(endpoints, exclude=no_exclude, delay=1.3, ...) {
+crunchbase_get_entities <- function(paths, exclude=no_exclude, delay=1.3, ...) {
     # as input, a vector of paths
     # eg: c("person/some-name", "person/another-name", "person/somebody")
     # as output, a list of lists, each list is the output of crunchbase_GET(path)
     # optionally, use exclude(node) to determine whether the node should be left out of the 
     # returned object -- saves you from retrieving stuff you don't want, saves time
-
-    if (!require(magrittr)) {
-        stop("the magrittr package is required, please install")
-    }        
     
-    entities <- vector("list", length(endpoints))
-    for (i in 1:length(endpoints)) {
-        cat("Getting data for ", endpoints[i], "\n")
+    entities <- vector("list", length(paths))
+    for (i in 1:length(paths)) {
+        cat("Getting data for ", paths[i], "\n")
         Sys.sleep(delay)
-        temp <- crunchbase_GET(endpoints[i], ...) %>% crunchbase_parse
+        temp <- crunchbase_GET(paths[i], ...) %>% crunchbase_parse
         if (exclude(temp)) next
         
-        cat("Adding ", endpoints[i], "to list", "\n")
+        cat("Adding ", paths[i], "to list", "\n")
         entities[[i]] <- temp
-        names(entities)[i] <- endpoints[i]    
+        names(entities)[i] <- paths[i]
     }
     return(entities[sapply(entities, function(x) !is.null(x))])
 }
 
 crunchbase_expand_section <- function(node, relationship, ...) {
-    if (!require(magrittr)) {
-        stop("the magrittr package is required, please install")
-    }    
-    
-    if (!require(stringr)) {
-        stop("the stringr package is required, please install")
-    }    
-    
-    
-    # takes as input a parsed node detail response and a relationship name (eg current_team, web_presences, etc)
-    # and returns the entire collection (all pages,if >1). 
+    # takes as input a parsed node detail response and a relationship name 
+    # (eg current_team, web_presences, etc) and returns the entire collection 
+    # (all pages,if >1). 
     
     # the section we'll be working with
     section <- node[[c("data","relationships",relationship)]]
