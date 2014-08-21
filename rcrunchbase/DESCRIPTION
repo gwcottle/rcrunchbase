@@ -1,0 +1,11 @@
+Package: rcrunchbase
+Title: An R client for the CrunchBase API. Developed with a particular focus on
+    Prospect Development
+Version: 0.1
+Authors@R: "First Last <first.last@example.com> [aut, cre]"
+Description: person(first="Tarak", last = "Shah", role = c("aut", "cre"), email
+    = "tarak_shah@berkeley.edu")
+Depends:
+    R (>= 3.1.1)
+License: use it however you want
+LazyData: true

@@ -1,9 +1,33 @@
-mGET <- memoise(httr::GET)
+#' Memoised GET.
+#' 
+#' \code{mGET} is just a memoised version of \code{httr}'s \code{GET} function
+mGET <- memoise::memoise(httr::GET)
 
+#' Building order parameters for collections queries.
+#' 
+#' This is a pretty useless helper function.
+#' @param mod Ordering function (eg created_at, modified_at, etc)
+#' @param type Order (asc or desc)
 crunchbase_order <- function(mod="created_at", type="asc") {
     paste(mod, type, sep=" ")
 }
 
+#' Query CrunchBase.
+#' 
+#' Query CrunchBase via a GET request.
+#' 
+#' All of the CrunchBase API's functionality comes through GET requests. This 
+#' function collects any query parameters and GETs the resulting URL
+#' 
+#' @param path A query endpoint, presented either as a single string 
+#'  (e.g. "people" or "person/johndoe") or as a vector that drills down a 
+#'  hierarchy (e.g. c("person", "johndoe"))
+#'  
+#' @param ... any other query parameters, each entered as parameter = "value"
+#' @examples
+#' x <- crunchbase_GET(c("person", "bill-gates"))
+#' x <- crunchbase_GET("person/bill-gates")
+#' crunchbase_GET("companies", location="San Francisco")
 crunchbase_GET <- function(path, ...) {
     
     query <- list(...)
@@ -28,12 +52,15 @@ crunchbase_GET <- function(path, ...) {
     } else {return(p)}
 }
 
+
+#' Audit the results of crunchbase_GET.
 crunchbase_GET_audit <- function(p) {
     if (p$status_code < 400) return(FALSE)    
     warning("HTTP failure: ", p$status_code, "\n", p$headers$statusmessage, call. = FALSE)
     return(TRUE)
 }
 
+#' Check a parsed request for error messages.
 crunchbase_check <- function(p) {
     if (is.null(p$data$error)) 
         return(FALSE)
@@ -43,6 +70,11 @@ crunchbase_check <- function(p) {
     return(TRUE)
 }
 
+#' Parse raw CrunchBase API responses.
+#' 
+#' @examples
+#' x <- crunchbase_GET(c("person", "bill-gates"))
+#' crunchbase_parse(x)
 crunchbase_parse <- function(req) {
     if (is.null(req)) {
         warning("No output to parse", call. = FALSE)
@@ -58,6 +90,17 @@ crunchbase_parse <- function(req) {
     p
 }
 
+#' Set or get a CrunchBase user key.
+#' 
+#' Reads (or writes) the user key to an environment variable.
+#' 
+#' Request a user key from CrunchBase \url{https://developer.crunchbase.com/} 
+#' in order to use the API. This key gets appended to GET queries via the 
+#' \code{user_key} parameter. By saving the key to an environment variable, a 
+#' user only needs to enter it once per session. 
+#' 
+#' @param force Overwrite existing key? If TRUE, the user will be prompted to 
+#'  enter a user key even if one has already been entered before.
 crunchbase_key <- function(force = FALSE) {
     env <- Sys.getenv("CRUNCHBASE_KEY")
     if (!identical(env, "") && !force) 
