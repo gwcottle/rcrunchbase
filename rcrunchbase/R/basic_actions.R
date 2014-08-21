@@ -1,6 +1,7 @@
 #' Memoised GET.
 #' 
 #' \code{mGET} is just a memoised version of \code{httr}'s \code{GET} function
+#' @export
 mGET <- memoise::memoise(httr::GET)
 
 #' Building order parameters for collections queries.
@@ -8,22 +9,23 @@ mGET <- memoise::memoise(httr::GET)
 #' This is a pretty useless helper function.
 #' @param mod Ordering function (eg created_at, modified_at, etc)
 #' @param type Order (asc or desc)
+#' @export
 crunchbase_order <- function(mod="created_at", type="asc") {
     paste(mod, type, sep=" ")
 }
 
 #' Query CrunchBase.
 #' 
-#' Query CrunchBase via a GET request.
-#' 
-#' All of the CrunchBase API's functionality comes through GET requests. This 
-#' function collects any query parameters and GETs the resulting URL
+#' Query CrunchBase via a GET request. All of the CrunchBase API's 
+#' functionality comes through GET requests. This function collects any 
+#' query parameters and GETs the resulting URL
 #' 
 #' @param path A query endpoint, presented either as a single string 
 #'  (e.g. "people" or "person/johndoe") or as a vector that drills down a 
 #'  hierarchy (e.g. c("person", "johndoe"))
 #'  
 #' @param ... any other query parameters, each entered as parameter = "value"
+#' @export
 #' @examples
 #' x <- crunchbase_GET(c("person", "bill-gates"))
 #' x <- crunchbase_GET("person/bill-gates")
@@ -54,6 +56,7 @@ crunchbase_GET <- function(path, ...) {
 
 
 #' Audit the results of crunchbase_GET.
+#' @export
 crunchbase_GET_audit <- function(p) {
     if (p$status_code < 400) return(FALSE)    
     warning("HTTP failure: ", p$status_code, "\n", p$headers$statusmessage, call. = FALSE)
@@ -61,6 +64,7 @@ crunchbase_GET_audit <- function(p) {
 }
 
 #' Check a parsed request for error messages.
+#' @export
 crunchbase_check <- function(p) {
     if (is.null(p$data$error)) 
         return(FALSE)
@@ -72,6 +76,7 @@ crunchbase_check <- function(p) {
 
 #' Parse raw CrunchBase API responses.
 #' 
+#' @export
 #' @examples
 #' x <- crunchbase_GET(c("person", "bill-gates"))
 #' crunchbase_parse(x)
@@ -80,7 +85,7 @@ crunchbase_parse <- function(req) {
         warning("No output to parse", call. = FALSE)
         return(NULL)
     }
-    text <- content(req, as = "text")
+    text <- httr::content(req, as = "text")
     if (identical(text, "")) {
         warning("No output to parse", call. = FALSE)
         return(NULL)
@@ -101,6 +106,7 @@ crunchbase_parse <- function(req) {
 #' 
 #' @param force Overwrite existing key? If TRUE, the user will be prompted to 
 #'  enter a user key even if one has already been entered before.
+#' @export
 crunchbase_key <- function(force = FALSE) {
     env <- Sys.getenv("CRUNCHBASE_KEY")
     if (!identical(env, "") && !force) 

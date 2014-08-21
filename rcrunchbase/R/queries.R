@@ -1,3 +1,15 @@
+#' Get a collections endpoint
+#' 
+#' Simplifies GETting multi-page collections endpoints. Instead of making 
+#' repeated calls to /code{crunchbase_GET} with /code{page=n}, just use this.
+#' 
+#' @param path the path for the collections endpoint
+#' @param page.limit use if you only want a subset of the pages
+#' @param delay length of time (in seconds) to pause between each GET request, 
+#'  useful to avoid going over usage limits.
+#' @param ... other arguments passed to /code{crunchbase_GET}
+#' @export
+#' 
 crunchbase_get_collection <- function(path, page.limit=FALSE, delay=1.3, ...) {    
     # pull ALL items in a collection 
     # (easy if one page, need to access first page "paging" to get future pages otherwise)
