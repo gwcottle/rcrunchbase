@@ -32,7 +32,7 @@ crunchbase_GET <- function(path, ...) {
     
     if (!("user_key" %in% names(query)) || is.null(query$user_key)) query$user_key <- crunchbase_key()
     if (!("page" %in% names(query)) || is.null(query$page)) query$page <- 1    
-    if (!("order" %in% names(query)) || is.null(query$order)) query$order <- crunchbase_order()
+    #if (!("order" %in% names(query)) || is.null(query$order)) query$order <- crunchbase_order()
     
     path <- paste(path, collapse="/")
     
