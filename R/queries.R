@@ -154,6 +154,7 @@ crunchbase_expand_section <- function(node, relationship, ...) {
     
     # the section we'll be working with
     section <- node[[c("relationships",relationship)]]
+    if(is.null(section)) return(NULL)
     
     # if it's all here, don't need to do anything
     if (section$paging$total_items <= 8) return(data.frame(section$items, page=1))
