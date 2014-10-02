@@ -196,6 +196,7 @@ word_exclude <- function(section, pattern, ignore.case=TRUE) {
 #' Just an example
 #' @export
 exclude_noncal <- function(node) {
-    word_exclude(section=c("properties", "bio"), pattern="berkeley") &&
-        word_exclude(section = c("relationships", "degrees", "items", "organization_name"))
+    word_exclude(section=c("properties", "bio"), pattern="berkeley")(node) &&
+        word_exclude(section = c("relationships", "degrees", "items", "organization_name"),
+                     pattern="berkeley")(node)
 }
