@@ -30,9 +30,8 @@ crunchbase_GET <- function(path, ...) {
     
     query <- list(...)
     
-    if (!("user_key" %in% names(query)) || is.null(query$user_key)) query$user_key <- crunchbase_key()
-    if (!("page" %in% names(query)) || is.null(query$page)) query$page <- 1    
-    #if (!("order" %in% names(query)) || is.null(query$order)) query$order <- crunchbase_order()
+    if (!("user_key" %in% names(query)) || is.null(query$user_key)) 
+        query$user_key <- crunchbase_key()
     
     path <- paste(path, collapse="/")
     
@@ -51,7 +50,9 @@ crunchbase_GET <- function(path, ...) {
 
 crunchbase_GET_audit <- function(p) {
     if (p$status_code < 400) return(FALSE)    
-    warning("HTTP failure: ", p$status_code, "\n", p$headers$statusmessage, call. = FALSE)
+    warning("HTTP failure: ", p$status_code, " ", 
+            p$headers$statusmessage, 
+            call. = FALSE)
     return(TRUE)
 }
 
@@ -60,7 +61,7 @@ crunchbase_check <- function(p) {
         return(FALSE)
     
     message <- p$data$error$message
-    warning("HTTP failure: ", p$data$error$code, "\n", message, call. = FALSE)
+    warning(message, " (error ", p$data$error$code, ")", call. = FALSE)
     return(TRUE)
 }
 
@@ -85,40 +86,4 @@ crunchbase_parse <- function(req) {
     p <- jsonlite::fromJSON(text, simplifyDataFrame = TRUE)
     if (crunchbase_check(p)) return(NULL)
     p$data
-}
-
-#' Set or get a CrunchBase user key.
-#' 
-#' Reads (or writes) the user key to an environment variable.
-#' 
-#' Request a user key from CrunchBase \url{https://developer.crunchbase.com/} 
-#' in order to use the API. This key gets appended to GET queries via the 
-#' \code{user_key} parameter. By saving the key to an environment variable, a 
-#' user only needs to enter it once per session. 
-#' 
-#' @param force Overwrite existing key? If TRUE, the user will be prompted to 
-#'  enter a user key even if one has already been entered before.
-#' @export
-crunchbase_key <- function(force = FALSE) {
-    env <- Sys.getenv("CRUNCHBASE_KEY")
-    if (!identical(env, "") && !force) 
-        return(env)
-    
-    if (!interactive()) {
-        stop("Please set env var CRUNCHBASE_KEY to your crunchbase user key", 
-             call. = FALSE)
-    }
-    
-    message("Couldn't find env var CRUNCHBASE_KEY. See ?crunchbase_key for more details.")
-    message("Please enter your user_key and press enter:")
-    key <- readline(": ")
-    
-    if (identical(key, "")) {
-        stop("Crunchbase user_key entry failed", call. = FALSE)
-    }
-    
-    message("Updating CRUNCHBASE_KEY environment variable")
-    Sys.setenv(CRUNCHBASE_KEY = key)
-    
-    key
 }
