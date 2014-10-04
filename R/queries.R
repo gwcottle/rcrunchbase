@@ -15,41 +15,37 @@
 #' crunchbase_get_collection("people") ## returns all people in CrunchBase
 #' crunchbase_get_collection("organizations", location="Oakland")
 #' 
-crunchbase_get_collection <- function(path, flatten = TRUE, page.limit=FALSE, delay=1.3, ...) {    
+crunchbase_get_collection <- function(path, ...) {    
     # pull ALL items in a collection 
-    # (easy if one page, need to access first page "paging" to get future pages otherwise)
+    # (easy if one page, else access first page "paging" to get future pages)
     
-    # get first page of results and check the paging data to see how many more (if any)
-    pageOne <- crunchbase_GET(path, ...) %>% crunchbase_parse
-    if (is.null(pageOne)) stop(paste(paste(path, collapse="/"), "is not a valid collection", sep=" "), call.=FALSE)
-    if (page.limit) {
-        pages <- pmin(pageOne[[c("paging","number_of_pages")]], page.limit)
-    } else {
-        pages <- pageOne[[c("paging","number_of_pages")]]}
+    # get first page of results and check the paging data to see how many more
+    page_one <- crunchbase_GET(path, ...)
+    page_one <- crunchbase_parse(page_one)
+    if (is.null(page_one)) stop(paste(paste(path, collapse="/"), 
+                                      "is not a valid collection", sep=" "), 
+                                call.=FALSE)
+    pages <- page_one[[c("paging","number_of_pages")]]
     
     # if there's only one page, we're done!
-    if (pages < 2) {
-        if (flatten) {
-            return(crunchbase_flatten_collection(list(pageOne)))
-                   } else {
-                       return(list(pageOne))}
-    }
+    if (pages < 2L) return(crunchbase_flatten_collection(list(page_one)))
 
-    # otherwise, let's keep querying. store the results in a list, one element per page
+    # otherwise, keep querying. store the results in a list, one element per page
     # we already have the first page
-    output <- vector("list", pages)
-    output[[1]] <- pageOne
-    cat(pages, " pages in all, starting to download at ", format(Sys.time(), "%X"), "\n",sep="")
+    #output <- vector("list", pages)
+    #output[[1L]] <- page_one
+    cat(pages, " pages in all, starting to download at ", 
+        format(Sys.time(), "%X"), "\n",sep="")
     
-    # outputting the time at each iteration is helpful for me, but should
-    # eventually be made optional (verbose=FALSE)
-    for (i in 2:pages) {
-        cat("Getting page ", i," at ", format(Sys.time(), "%X"), "\n",sep="")
-        output[[i]] <- crunchbase_GET(path, page=i, ...) %>%
-            crunchbase_parse
-        Sys.sleep(delay)
+    getpage <- function(p) {
+        crunchbase_parse(crunchbase_GET(path, page=p, ...))
     }
-    if (flatten) return (crunchbase_flatten_collection(output)) else return(output)
+    
+    rest <- lapply(2:pages, delay(44, 60, getpage))
+    
+    output <- c(list(page_one), rest)
+    
+    crunchbase_flatten_collection(output)
 }
 
 
@@ -73,11 +69,11 @@ crunchbase_flatten_collection <- function(collection) {
     # i append to each row the page of "collection" that the record came from.
     
     if (length(collection) == 1)
-        return(data.frame(collection[[1]]$items, page=collection[[1]]$paging$current_page))
+        return(data.frame(collection[[1]]$items))
     
     alldf <- vector("list", length(collection))
     for (i in 1:length(collection)) {
-        alldf[[i]] <- data.frame(collection[[i]]$items, page=collection[[i]]$paging$current_page)
+        alldf[[i]] <- data.frame(collection[[i]]$items)
     }
     do.call("rbind", alldf)
 }
