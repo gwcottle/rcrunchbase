@@ -1,15 +1,5 @@
 mGET <- memoise::memoise(httr::GET)
 
-#' Building order parameters for collections queries.
-#' 
-#' This is a pretty useless helper function.
-#' @param mod Ordering function (eg created_at, modified_at, etc)
-#' @param type Order (asc or desc)
-#' @export
-crunchbase_order <- function(mod="created_at", type="asc") {
-    paste(mod, type, sep=" ")
-}
-
 #' Query CrunchBase.
 #' 
 #' Query CrunchBase via a GET request. All of the CrunchBase API's 
@@ -20,27 +10,16 @@ crunchbase_order <- function(mod="created_at", type="asc") {
 #'  (e.g. "people" or "person/johndoe") or as a vector that drills down a 
 #'  hierarchy (e.g. c("person", "johndoe"))
 #'  
-#' @param ... any other query parameters, each entered as parameter = "value"
+#' @param ... any other query parameters, see 
+#' \url{https://developer.crunchbase.com/docs} for details
 #' @export
 #' @examples
 #' x <- crunchbase_GET(c("person", "bill-gates"))
 #' x <- crunchbase_GET("person/bill-gates")
-#' crunchbase_GET("organizations", location="San Francisco")
 crunchbase_GET <- function(path, ...) {
     
-    query <- list(...)
-    
-    if (!("user_key" %in% names(query)) || is.null(query$user_key)) 
-        query$user_key <- crunchbase_key()
-    
-    path <- paste(path, collapse="/")
-    
-    request <- list(scheme = "http",
-                    hostname = "api.crunchbase.com",
-                    path = paste("v", "2", path, sep="/"),
-                    query = query)
-    class(request) <- "url"                
-    request <- gsub("%5F", "_", httr::build_url(request))
+    request <- crunchbase_build_url(path, ...)
+
     p <- mGET(request)
     
     if (crunchbase_GET_audit(p)) {

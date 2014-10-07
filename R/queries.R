@@ -3,28 +3,28 @@
 #' Simplifies GETting multi-page collections endpoints. Instead of making 
 #' repeated calls to \code{crunchbase_GET} with \code{page=n}, just use this.
 #' 
-#' @param path the path for the collections endpoint
-#' @param page.limit use if you only want a subset of the pages
-#' @param delay length of time (in seconds) to pause between each GET request, 
-#'  useful to avoid going over usage limits.
+#' @param path the path for the collections endpoint. This may also 
+#' @param speed Number of API calls to make per minute. Default 44
 #' @param ... other arguments passed to crunchbase_GET
-#' @importFrom magrittr %>%
 #' @export
 #' @examples
 #' crunchbase_get_collection(c("organization","facebook","current_team"))
 #' crunchbase_get_collection("people") ## returns all people in CrunchBase
-#' crunchbase_get_collection("organizations", location="Oakland")
 #' 
-crunchbase_get_collection <- function(path, ...) {    
+crunchbase_get_collection <- function(path, ..., speed=44L) {    
     # pull ALL items in a collection 
     # (easy if one page, else access first page "paging" to get future pages)
     
+    params = c(path = path, prep_params(...))
+
     # get first page of results and check the paging data to see how many more
-    page_one <- crunchbase_GET(path, ...)
+    page_one <- do.call(crunchbase_GET, params)
     page_one <- crunchbase_parse(page_one)
-    if (is.null(page_one)) stop(paste(paste(path, collapse="/"), 
-                                      "is not a valid collection", sep=" "), 
-                                call.=FALSE)
+    if (is.null(page_one)) {
+        warning("No results returned", call.=FALSE)
+        return(NULL)
+    }
+
     pages <- page_one[[c("paging","number_of_pages")]]
     
     # if there's only one page, we're done!
@@ -38,10 +38,11 @@ crunchbase_get_collection <- function(path, ...) {
         format(Sys.time(), "%X"), "\n",sep="")
     
     getpage <- function(p) {
-        crunchbase_parse(crunchbase_GET(path, page=p, ...))
+        pg <- do.call(crunchbase_GET, c(params, page=p))
+        crunchbase_parse(pg)
     }
     
-    rest <- lapply(2:pages, delay(44, 60, getpage))
+    rest <- lapply(2:pages, delay(speed, 60, getpage))
     
     output <- c(list(page_one), rest)
     
