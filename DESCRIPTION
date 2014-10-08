@@ -4,14 +4,15 @@ Version: 0.1
 Authors@R: person(given="Tarak", family = "Shah", role = c("aut", "cre"), email
     = "tarak_shah@berkeley.edu")
 Description: Developed with a particular focus on Prospect Development
-Depends:
+Depends: 
     R (>= 3.1.1)
 License: use it however you want
 LazyData: true
-Imports:
+Imports: 
     memoise,
     magrittr,
     httr,
     stringr,
     dplyr,
     jsonlite
+Suggests: testthat

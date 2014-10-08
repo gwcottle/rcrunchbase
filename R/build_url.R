@@ -1,7 +1,7 @@
 #' @import httr
 crunchbase_build_url <- function(path, ...) {
     
-    query <- list(...)
+    query <- prep_params(...)
     
     if (!("user_key" %in% names(query)) || is.null(query$user_key)) 
         query$user_key <- crunchbase_key()

@@ -42,7 +42,7 @@ crunchbase_get_collection <- function(path, ..., speed=44L) {
         crunchbase_parse(pg)
     }
     
-    rest <- lapply(2:pages, delay(speed, 60, getpage))
+    rest <- lapply(2:pages, delay(speed, 60L, getpage))
     
     output <- c(list(page_one), rest)
     
@@ -97,36 +97,30 @@ crunchbase_flatten_collection <- function(collection) {
 #' "path," (for instance: the result of crunchbase_get_collection)
 #' @param exclude any function that takes as its input a crunchbase entity 
 #' and returns as its output either \code{TRUE} or \code{FALSE}
-#' @param delay length of time in seconds to wait between GET requests, useful 
-#' to avoid hitting usage limits
+#' @param speed maximum number of requests per minute
 #' @param ... other arguments passed to \code{crunchbase_GET}
-#' @importFrom magrittr %>%
 #' @export
 #' @examples
 #' ## see details on all companies in Oakland
 #' crunchbase_get_collection("organizations", location="Oakland") %>% 
 #'     crunchbase_get_entities
 #' 
-crunchbase_get_entities <- function(paths, exclude=no_exclude, delay=1.3, ...) {
-    # as input, a vector of paths
-    # eg: c("person/some-name", "person/another-name", "person/somebody")
-    # as output, a list of lists, each list is the output of crunchbase_GET(path)
-    # optionally, use exclude(node) to determine whether the node should be left out of the 
-    # returned object -- saves you from retrieving stuff you don't want, saves time
+crunchbase_get_entities <- function(paths, ..., exclude=no_exclude, speed=44L) {
     if (is.data.frame(paths)) paths <- paths$path
-    entities <- vector("list", length(paths))
-    for (i in 1:length(paths)) {
-        cat("Getting data for ", paths[[i]], "\n")
-        Sys.sleep(delay)
-        temp <- crunchbase_GET(paths[[i]], ...) %>% crunchbase_parse
-        if (exclude(temp)) next
-        
-        cat("Adding ", paths[[i]], "to list", "\n")
-        entities[[i]] <- temp
+    
+    get_ents <- function(path, ...) {
+        temp <- crunchbase_parse(crunchbase_GET(path, ...))
+        if (exclude(temp)) return(NULL)
+        temp
     }
+    
+    entities <- lapply(paths, delay(speed, 60L, get_ents))
+    
+    
+    
     if (length(entities) == 0) return(entities)
     entities <- entities[sapply(entities, function(x) !is.null(x))]
-    if (length(entities) == 1) return(entities[[1]]) else return(entities)
+    entities
 }
 
 #' Expand a section of an entity detail
@@ -140,6 +134,7 @@ crunchbase_get_entities <- function(paths, exclude=no_exclude, delay=1.3, ...) {
 #' @param node a downloaded entity node
 #' @param relationship character: the name of the section to expand
 #' @param ... other arguments passed to crunchbase_get_collection
+#' @import stringr
 #' @export
 #' @examples
 #' crunchbase_get_entities(c("organization", "facebook")) %>%
@@ -160,8 +155,7 @@ crunchbase_expand_section <- function(node, relationship, ...) {
     # the section paging has the entire url for the first page,
     # we need to pass just the path part to get_collection
     crunchbase_get_collection(path=stringr::str_match(section$paging$first_page_url, 
-                                             "/v/2/(.+$)")[,2],
-                              ...)
+                                             "/v/2/(.+$)")[,2], ...)
 }
 
 #' Don't exclude anything
