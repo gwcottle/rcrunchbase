@@ -1,0 +1,76 @@
+---
+title: "Getting started with rcrunchbase"
+author: "Tarak Shah"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with rcrunchbase}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+`rcrunchbase` is an R client to the CrunchBase API (https://developer.crunchbase.com/), supplemented with (hopefully) helpful functions that aim to create a compositional query flow. As much as possible, complex queries can be built up from simple requests. The intent is for `rcrunchbase` can handle the messy stuff while you focus on getting the data you want.
+
+## A simple request
+Let's start by looking at the most basic query we can make, pulling the profile for the Golden State Warriors:
+
+```{r get_gsw, cache=TRUE}
+library(rcrunchbase)
+gsw <- crunchbase_get_details("organization/golden-state-warriors")
+
+# take a look at the structure
+ls.str(gsw[[1]])
+```
+
+All objects from the CrunchBase API can be categorized as one of the following types:
+
+* _Node details_ - A detailed profile of an entity (person, organization, product, etc) that corresponds to the entity's profile on the CrunchBase website.
+* _Collection_ - A condensed list of nodes without any details, but with pointers to the corresponding node details.
+
+Accordingly, there are two functions in `rcrunchbase` that reflect this structure:
+
+* `crunchbase_get_details`
+* `crunchbase_get_collection`
+
+So, our `gsw` object is a *node detail*. You may have noticed that the object is wrapped in a one-element list: this is because `crunchbase_get_details` allows you to pull multiple entities with a single query. 
+
+Let's inspect our `gsw` object.:
+```{r inspect_gsw}
+names(gsw[[1]])
+ls.str(gsw[[1]]$relationships)
+```
+
+Notice that the `relationships` section includes a number of data frames. In fact, each relationship is a _collection_ object. `crunchbase_expand_section` allows us to usefully open up any of these relationships and inspect them in a natural way:
+
+```{r gsw_current_team}
+crunchbase_expand_section(gsw, "current_team")
+# note that we can also expand multiple sections and combine the results:
+crunchbase_expand_section(gsw, c("current_team", "past_team"))
+```
+
+These three functions can be combined in diverse ways, resulting in a much richer and more expressive approach to the API. To take full advantage of the compositional nature of these functions, it's useful to have a "piping" operator to pass results of one function to inputs for the next function. I prefer the `%>%` operator from the `magrittr` package.
+
+```{r gsw_inv, cache=TRUE}
+library(magrittr)
+
+gs_invests <- crunchbase_expand_section(gsw, c("current_team", "past_team")) %>%
+    crunchbase_get_details %>%
+    crunchbase_expand_section("investments")
+
+# a list of all companies that current and past team members at the Golden State Warriors have invested in:
+gs_invests$invested_in.name
+```
+
+As you can see, this process can go on and on, once you get the hang of it. With the following, we will have completed the query that answers the question, "find all people listed in CrunchBase who work or worked for an organization that received investments from someone who works or worked with the Golden State Warriors." This type of question can come up when relationship mining, for instance:
+
+```{r gsw_inv_team, cache=TRUE}
+inv_recips <- gs_invests %>% 
+    crunchbase_get_details(df_path = "invested_in.path") %>% 
+    crunchbase_expand_section(c("current_team", "past_team"))
+
+# how many people did we identify?
+nrow(inv_recips)
+
+# who are they?
+head(inv_recips[c("first_name", "last_name", "title")])
+```

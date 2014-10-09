@@ -59,5 +59,7 @@ crunchbase_strip <- function(node) {
 #' returns the result as one \code{data.frame}, which can be exported or whatever.
 #' @export
 crunchbase_strip_list <- function(nodes) {
-  lapply(nodes, crunchbase_strip) %>% do.call(rbind, .) %>% data.frame(stringsAsFactors=FALSE)
+  stripped <- lapply(nodes, crunchbase_strip) 
+  stripped <- do.call(rbind, stripped)
+  data.frame(stripped, stringsAsFactors=FALSE)
 }

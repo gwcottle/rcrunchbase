@@ -1,3 +1,4 @@
+#' @import memoise
 mGET <- memoise::memoise(httr::GET)
 
 #' Query CrunchBase.
@@ -48,6 +49,8 @@ crunchbase_check <- function(p) {
 #' 
 #' You only need to use this if you're using the basic /code{crunchbase_GET} function. 
 #' Other functions automatically parse the responses. 
+#' @import httr
+#' @import jsonlite
 #' @export
 #' @examples
 #' x <- crunchbase_GET(c("person", "bill-gates"))
@@ -62,7 +65,12 @@ crunchbase_parse <- function(req) {
         warning("No output to parse", call. = FALSE)
         return(NULL)
     }
-    p <- jsonlite::fromJSON(text, simplifyDataFrame = TRUE)
+    p <- jsonlite::fromJSON(text, simplifyDataFrame = TRUE, flatten=TRUE)
     if (crunchbase_check(p)) return(NULL)
-    p$data
+    if (any(names(p$data) == "paging")) {
+        class_p <- "cb_collection"
+    } else {
+        class_p <- "cb_node"
+    }
+    structure(p$data, class=class_p)
 }

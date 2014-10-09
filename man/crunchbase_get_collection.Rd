@@ -3,14 +3,14 @@
 \alias{crunchbase_get_collection}
 \title{Get a collections endpoint}
 \usage{
-crunchbase_get_collection(path, speed = 44L, ...)
+crunchbase_get_collection(path, ..., speed = 44L)
 }
 \arguments{
-\item{path}{the path for the collections endpoint}
-
-\item{speed}{Number of API calls to make per minute. Default 44.}
+\item{path}{the path for the collections endpoint. This may also}
 
 \item{...}{other arguments passed to crunchbase_GET}
+
+\item{speed}{Number of API calls to make per minute. Default 44}
 }
 \description{
 Simplifies GETting multi-page collections endpoints. Instead of making
@@ -19,6 +19,5 @@ repeated calls to \code{crunchbase_GET} with \code{page=n}, just use this.
 \examples{
 crunchbase_get_collection(c("organization","facebook","current_team"))
 crunchbase_get_collection("people") ## returns all people in CrunchBase
-crunchbase_get_collection("organizations", location="Oakland")
 }
 
