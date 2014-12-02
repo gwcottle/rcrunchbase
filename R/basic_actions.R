@@ -1,5 +1,6 @@
 #' @import memoise
-mGET <- memoise::memoise(httr::GET)
+#' @import httr
+mGET <- memoise::memoise(managed_call(httr::GET, events=44L, every=60L))
 
 #' Query CrunchBase.
 #' 
@@ -13,6 +14,15 @@ mGET <- memoise::memoise(httr::GET)
 #'  
 #' @param ... any other query parameters, see 
 #' \url{https://developer.crunchbase.com/docs} for details
+#' 
+#' @note \code{crunchbase_GET} keeps track of API calls and will automatically 
+#' pause a query for the appropriate amount of time in order to keep from making 
+#' more than 44 calls per minute. Furthermore, results are cached for the length 
+#' of your R session (using \code{memoise}). To make it easier to use the API 
+#' collections filters (currently only applies to organization queries), you can 
+#' pass \code{data.frame}s directly to \code{crunchbase_GET}, as long as it 
+#' contains columns named "type" and "uuid," as the \code{locations} and 
+#' \code{categories} collections do.
 #' @export
 #' @examples
 #' x <- crunchbase_GET(c("person", "bill-gates"))
