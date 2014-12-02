@@ -41,7 +41,8 @@ crunchbase_expand_section.default <- function(node, relationship, ...) {
 #' 
 #' @param node a downloaded node, or multiple nodes as returned by 
 #' \code{crunchbase_get_details}
-#' @param relationship character: the name of the section to expand
+#' @param relationship character: the name(s) of the section(s) to expand - 
+#' vectors with length longer than 1 are treated as multiple sections to expand
 #' @param ... other arguments passed to crunchbase_get_collection
 #' @import stringr
 #' @export

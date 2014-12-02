@@ -18,6 +18,16 @@ Query CrunchBase via a GET request. All of the CrunchBase API's
 functionality comes through GET requests. This function collects any
 query parameters and GETs the resulting URL
 }
+\note{
+\code{crunchbase_GET} keeps track of API calls and will automatically
+pause a query for the appropriate amount of time in order to keep from making
+more than 44 calls per minute. Furthermore, results are cached for the length
+of your R session (using \code{memoise}). To make it easier to use the API
+collections filters (currently only applies to organization queries), you can
+pass \code{data.frame}s directly to \code{crunchbase_GET}, as long as it
+contains columns named "type" and "uuid," as the \code{locations} and
+\code{categories} collections do.
+}
 \examples{
 x <- crunchbase_GET(c("person", "bill-gates"))
 x <- crunchbase_GET("person/bill-gates")

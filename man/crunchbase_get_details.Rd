@@ -3,21 +3,23 @@
 \alias{crunchbase_get_details}
 \title{Get one or more entity endpoints}
 \usage{
-crunchbase_get_details(paths, ..., filter = no_filter, speed = 44L)
+crunchbase_get_details(paths, df_path = "path", filter = no_filter, ...)
 }
 \arguments{
 \item{paths}{a vector or list of paths, for instance
 c("person/some-name", "person/another-name", "person/somebody") or
 list(c("person", "some-name"), c("person", "another-name"),
-c("person", "somebody")). This can also be a data.frame with a column named
-"path," (for instance: the result of crunchbase_get_collection)}
+c("person", "somebody")). This can also be a data.frame (for instance: the
+result of crunchbase_get_collection)}
 
-\item{...}{other arguments passed to \code{crunchbase_GET}}
+\item{df_path}{character if \code{paths} is a data.frame, this should be the
+name or integer index of the column containing the query paths. Defaults to
+"path"}
 
 \item{filter}{any function that takes as its input a crunchbase node detail
 and returns as its output either \code{TRUE} (include) or \code{FALSE}}
 
-\item{speed}{maximum number of requests per minute}
+\item{...}{other arguments passed to \code{crunchbase_GET}}
 }
 \description{
 Retrieve data about one or more CrunchBase entities. This is a convenient

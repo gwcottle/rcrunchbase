@@ -12,24 +12,28 @@
 #' @param paths a vector or list of paths, for instance 
 #' c("person/some-name", "person/another-name", "person/somebody") or 
 #' list(c("person", "some-name"), c("person", "another-name"), 
-#' c("person", "somebody")). This can also be a data.frame with a column named 
-#' "path," (for instance: the result of crunchbase_get_collection)
+#' c("person", "somebody")). This can also be a data.frame (for instance: the 
+#' result of crunchbase_get_collection)
+#' @param df_path character if \code{paths} is a data.frame, this should be the 
+#' name or integer index of the column containing the query paths. Defaults to 
+#' "path"
 #' @param filter any function that takes as its input a crunchbase node detail 
 #' and returns as its output either \code{TRUE} (include) or \code{FALSE}
-#' @param speed maximum number of requests per minute
 #' @param ... other arguments passed to \code{crunchbase_GET}
 #' @export
 #' 
-crunchbase_get_details <- function(paths, ..., df_path = "path", filter=no_filter, speed=44L) {
-    if (is.data.frame(paths)) paths <- paths[[df_path]]
+crunchbase_get_details <- function(paths, df_path = "path", filter=no_filter, ...) {
+    if (is.data.frame(paths)) paths <- paths[[df_path[1]]]
     
     get_ents <- function(path, ...) {
+        cat("_")
         temp <- crunchbase_parse(crunchbase_GET(path, ...))
         if (!filter(temp)) return(NULL)
+        cat(".")
         temp
     }
     
-    entities <- lapply(paths, delay(speed, 60L, get_ents))
+    entities <- lapply(paths, get_ents)
     
     if (length(entities) == 0) return(entities)
     entities <- entities[sapply(entities, function(x) !is.null(x))]

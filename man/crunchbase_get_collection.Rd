@@ -3,14 +3,12 @@
 \alias{crunchbase_get_collection}
 \title{Get a collections endpoint}
 \usage{
-crunchbase_get_collection(path, ..., speed = 44L)
+crunchbase_get_collection(path, ...)
 }
 \arguments{
-\item{path}{the path for the collections endpoint. This may also}
+\item{path}{the path for the collections endpoint.}
 
 \item{...}{other arguments passed to crunchbase_GET}
-
-\item{speed}{Number of API calls to make per minute. Default 44}
 }
 \description{
 Simplifies GETting multi-page collections endpoints. Instead of making
