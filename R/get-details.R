@@ -58,7 +58,7 @@ no_filter <- function(node) {
 #' case-insensitive.
 #' @export
 word_filter <- function(section, pattern, ignore.case=TRUE) {
-    if (ignore.case) pattern <- stringr::ignore.case(pattern)
+    pattern <- stringr::fixed(pattern, ignore_case=ignore.case)
     filter <- function(node) {
         if (class(try(node[[section]], silent=TRUE)) == "try-error") return(FALSE)
         !is.null(node[[section]]) && stringr::str_detect(node[[section]], pattern)

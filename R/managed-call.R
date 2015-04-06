@@ -1,4 +1,5 @@
 managed_call <- function(f, events = 44L, every = 60L) {
+    force(f)
     minute_ <- rep(NA, events)
     function(...) {       
         m_dif <- as.numeric(Sys.time() - minute_, units = "secs")
