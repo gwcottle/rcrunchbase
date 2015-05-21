@@ -11,7 +11,7 @@ crunchbase_expand_section.cb_node <- function(node, relationship, ...) {
         
         # otherwise, get and flatten the necessary collection.
         crunchbase_get_collection(path=stringr::str_match(section$paging$first_page_url, 
-                                                          "/v/2/(.+$)")[,2], ...)
+                                                          "/v/3/(.+$)")[,2], ...)
     }
     expanded <- lapply(relationship, expander)
     do.call(plyr::rbind.fill, expanded)

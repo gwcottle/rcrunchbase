@@ -8,9 +8,9 @@ crunchbase_build_url <- function(path, ...) {
     
     path <- paste(path, collapse="/")
     
-    request <- list(scheme = "http",
+    request <- list(scheme = "https",
                     hostname = "api.crunchbase.com",
-                    path = paste("v", "2", path, sep="/"),
+                    path = paste("v", "3", path, sep="/"),
                     query = query)
     class(request) <- "url"                
     request <- gsub("%5F", "_", httr::build_url(request))

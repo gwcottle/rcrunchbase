@@ -1,10 +1,10 @@
 context("Simple GET requests")
 
 test_that("GET returns predictable objects", {
-    expect_that(crunchbase_build_url("person/bill-gates"), 
-                is_identical_to(crunchbase_build_url(c("person", "bill-gates"))))
+    expect_that(crunchbase_build_url("people/bill-gates"), 
+                is_identical_to(crunchbase_build_url(c("people", "bill-gates"))))
     expect_null(crunchbase_GET("bloop"))    
-    expect_null(crunchbase_parse(crunchbase_GET("person/tarak-shah")))    
+    expect_null(crunchbase_parse(crunchbase_GET("people/tarak-shah")))    
 })
 
 test_that("Can pass data frame as query parameter to GET", {

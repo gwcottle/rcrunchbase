@@ -1,3 +1,10 @@
+#' @import stringr
+get_pathnames <- function(path_df) {
+    nm <- names(path_df)
+    paths <- stringr::str_detect(nm, "api_path")
+    nm[paths]
+}
+
 #' Get one or more entity endpoints
 #' 
 #' Retrieve data about one or more CrunchBase entities. This is a convenient 
@@ -22,8 +29,20 @@
 #' @param ... other arguments passed to \code{crunchbase_GET}
 #' @export
 #' 
-crunchbase_get_details <- function(paths, df_path = "path", filter=no_filter, ...) {
-    if (is.data.frame(paths)) paths <- paths[[df_path[1]]]
+crunchbase_get_details <- function(paths, df_path = NULL, filter=no_filter, ...) {
+    if (is.data.frame(paths)) {
+      if (!is.null(df_path)) paths <- paths[[df_path[1]]]
+      else {
+          pathnames <- get_pathnames(paths)
+          if (length(pathnames) == 0)
+              stop("If you use a data frame as input to crunchbase_get_details, you need to specify which column contains the path to the API endpoint")
+          if (length(pathnames) > 1) {
+              namelist <- paste(pathnames, collapse="\n")
+              stop(paste("Which column in your data frame contains paths to the API endpoints? Is it one of these?", namelist, collapse="\n", sep="\n"))
+          }
+          paths <- paths[[pathnames]]
+      }
+    } 
     
     get_ents <- function(path, ...) {
         cat("_")
