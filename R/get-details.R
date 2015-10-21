@@ -87,8 +87,9 @@ word_filter <- function(section, pattern, ignore.case=TRUE) {
 
 #' Just an example
 #' @export
-filter_cal <- function(node) {
-    word_filter(section=c("properties", "bio"), pattern="berkeley")(node) ||
-        word_filter(section = c("relationships", "degrees", "items", "organization_name"),
-                     pattern="berkeley")(node)
+filter_cal <- function (node) 
+{
+    word_filter(section = c("properties", "bio"), pattern = "berkeley")(node) || 
+        word_filter(section = c("relationships", "degrees", "items", 
+                                "relationships.school.properties.name"), pattern = "berkeley")(node)
 }
