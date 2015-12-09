@@ -39,7 +39,7 @@ crunchbase_get_collection <- function(path, ...) {
     crunchbase_flatten_collection(output)
 }
 
-
+#' @import dplyr
 crunchbase_flatten_collection <- function(collection) {    
     if (length(collection) == 1)
         return(data.frame(collection[[1]]$items))
@@ -48,5 +48,5 @@ crunchbase_flatten_collection <- function(collection) {
     for (i in 1:length(collection)) {
         alldf[[i]] <- data.frame(collection[[i]]$items)
     }
-    do.call("rbind", alldf)
+    dplyr::rbind_all(alldf)
 }
