@@ -1,7 +1,6 @@
-#' @import stringr
 get_pathnames <- function(path_df) {
     nm <- names(path_df)
-    paths <- stringr::str_detect(nm, "api_path")
+    paths <- grep("api_path", nm)
     nm[paths]
 }
 

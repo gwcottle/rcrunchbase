@@ -1,4 +1,4 @@
-#' @import httr
+#' @importFrom httr build_url
 crunchbase_build_url <- function(path, ...) {
     
     query <- prep_params(...)

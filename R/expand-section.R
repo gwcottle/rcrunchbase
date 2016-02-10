@@ -1,4 +1,4 @@
-#' @import plyr
+#' @importFrom plyr rbind.fill
 #' @export
 crunchbase_expand_section.cb_node <- function(node, relationship, ...) {
     expander <- function(r) {
@@ -17,14 +17,14 @@ crunchbase_expand_section.cb_node <- function(node, relationship, ...) {
     do.call(plyr::rbind.fill, expanded)
 }
 
-#' @import plyr
+#' @importFrom plyr rbind.fill
 #' @export
 crunchbase_expand_section.cb_nodes <- function(node, relationship, ...) {    
     expanded <- lapply(node, crunchbase_expand_section, relationship, ...)
     do.call(plyr::rbind.fill, expanded)
 }
 
-#' @import plyr
+#' @importFrom plyr rbind.fill
 #' @export
 crunchbase_expand_section.default <- function(node, relationship, ...) {
     expanded <- lapply(node, crunchbase_expand_section, relationship, ...)
@@ -44,7 +44,6 @@ crunchbase_expand_section.default <- function(node, relationship, ...) {
 #' @param relationship character: the name(s) of the section(s) to expand - 
 #' vectors with length longer than 1 are treated as multiple sections to expand
 #' @param ... other arguments passed to crunchbase_get_collection
-#' @import stringr
 #' @export
 #' @examples
 #' crunchbase_get_details("organization/facebook") %>%

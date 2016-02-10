@@ -1,4 +1,4 @@
-#' @import assertthat
+#' @importFrom assertthat assert_that
 make_params <- function(df) {
     assertthat::assert_that(is.data.frame(df),
                             "uuid" %in% names(df),

@@ -1,6 +1,6 @@
 Package: rcrunchbase
 Title: An R client for the CrunchBase API.
-Version: 0.2.1.9001
+Version: 0.2.2.0000
 Authors@R: person(given="Tarak", family = "Shah", role = c("aut", "cre"), email
     = "tarak_shah@berkeley.edu")
 Description: Developed with a particular focus on Prospect Development
@@ -9,9 +9,7 @@ Depends:
 License: MIT + file LICENSE
 LazyData: true
 Imports:
-    memoise,
     httr,
-    stringr,
     plyr,
     assertthat,
     dplyr,
@@ -22,3 +20,4 @@ Suggests:
     rlist,
     knitr
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1
