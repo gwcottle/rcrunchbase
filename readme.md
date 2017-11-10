@@ -1,3 +1,5 @@
+*Note: I no longer have access to the CrunchBase API, and therefore will not be continuing to develop this package. Feel free to use what's here as long as it works, and/or fork it for your own purposes.*
+
 # rcrunchbase
 *updated for crunchbase API v3!*
 An R client for the CrunchBase API. Developed with a particular focus on Prospect Development
