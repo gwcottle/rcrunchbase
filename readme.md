@@ -1,3 +1,7 @@
+Sept. 8, 2018 - Forked project to begin updating for API v3.1.
+
+------------------------------------------------
+
 *Note: I no longer have access to the CrunchBase API, and therefore will not be continuing to develop this package. Feel free to use what's here as long as it works, and/or fork it for your own purposes.*
 
 # rcrunchbase
