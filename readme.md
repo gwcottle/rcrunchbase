@@ -1,6 +1,6 @@
 # rcrunchbase
-*Updated for Crunchbase API v3.1!*
 An R client for the CrunchBase API. 
+*Updated for Crunchbase API v3.1!*
 
 ## Installation
 The easiest way to install `rcrunchbase` is using `devtools`. If you don't have devtools installed, then start by typing:
