@@ -1,5 +1,4 @@
-# rcrunchbase
-An R client for the CrunchBase API. 
+# rcrunchbase - An R client for the Crunchbase API
 *Updated for Crunchbase API v3.1!*
 
 ## Installation
