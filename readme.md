@@ -1,6 +1,6 @@
 # rcrunchbase
 *Updated for Crunchbase API v3.1!*
-An R client for the CrunchBase API. Developed with a particular focus on Prospect Development
+An R client for the CrunchBase API. 
 
 ## Installation
 The easiest way to install `rcrunchbase` is using `devtools`. If you don't have devtools installed, then start by typing:
