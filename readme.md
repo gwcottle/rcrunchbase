@@ -1,5 +1,5 @@
 ## 'rcrunchbase' - An R client for the Crunchbase API v3.1
-*Note: This package will sunset on Jan. 29, 2021, when Crunchbase migrates to API v4.0. Contributors interested in updating the package can view the following for information on the required changes:* 
+*Note: This package will sunset on January 29, 2021, when Crunchbase migrates to API v4.0. Contributors interested in updating the package can view the following for information on the necessary changes:* 
 
 http://about.crunchbase.com/wp-content/uploads/2020/05/Webinar-How-to-Migrate-to-API-v4.0-.pdf
 
